@@ -7,7 +7,7 @@ import java.util.Objects;
 
 //Модель таблицы, куда будут попадать все первоначально общающиеся с ботом
 @Entity
-public class User {
+public class ChatUser {
     @Id
     @GeneratedValue
     private Long id;
@@ -18,10 +18,10 @@ public class User {
     private String phoneNumber;
     private String email;
 
-    public User() {
+    public ChatUser() {
     }
 
-    public User (long chatId, String first_name) {
+    public ChatUser(long chatId, String first_name) {
         this.chatId = chatId;
         this.first_name = first_name;
     }
@@ -43,7 +43,7 @@ public class User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User user1 = (User) o;
+        ChatUser user1 = (ChatUser) o;
         return chatId == user1.chatId && id.equals(user1.id)&&first_name.equals(user1.first_name)&&phoneNumber.equals(user1.phoneNumber)&&email.equals(user1.email);
     }
 
