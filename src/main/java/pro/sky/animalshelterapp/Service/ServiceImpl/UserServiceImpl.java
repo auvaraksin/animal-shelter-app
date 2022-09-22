@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.animalshelterapp.Service.UserService;
-import pro.sky.animalshelterapp.repository.UserRepository;
+import pro.sky.animalshelterapp.repository.ChatUserRepository;
 
 
 @Service
@@ -13,9 +13,9 @@ public class UserServiceImpl implements UserService {
 
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private final UserRepository repository;
+    private final ChatUserRepository repository;
 
-    public UserServiceImpl(UserRepository repository) {
+    public UserServiceImpl(ChatUserRepository repository) {
         this.repository = repository;
     }
 }
