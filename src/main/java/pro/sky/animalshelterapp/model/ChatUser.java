@@ -16,7 +16,7 @@ public class ChatUser {
     /*На первом этапе бот тоже может записать данные пользователя
     * Поэтому тут тоже можно запросить телефон-емайл*/
     private String phoneNumber;
-    private String email;
+    private String contacts;
 
     public ChatUser() {
     }
@@ -25,6 +25,15 @@ public class ChatUser {
         this.chatId = chatId;
         this.first_name = first_name;
     }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public Long getId() {
         return id;
     }
@@ -35,21 +44,20 @@ public class ChatUser {
 
     public String getFirst_name(){return first_name;}
 
-    public String getPhoneNumber() {return phoneNumber;}
+    public String getContacts() {return contacts;}
 
-    public String getEmail() {return email;}
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatUser user1 = (ChatUser) o;
-        return chatId == user1.chatId && id.equals(user1.id)&&first_name.equals(user1.first_name)&&phoneNumber.equals(user1.phoneNumber)&&email.equals(user1.email);
+        return chatId == user1.chatId && id.equals(user1.id)&&first_name.equals(user1.first_name)&&phoneNumber.equals(user1.phoneNumber)&&contacts.equals(user1.contacts);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, first_name, phoneNumber, email);
+        return Objects.hash(id, chatId, first_name, phoneNumber,contacts);
     }
 
     @Override
@@ -59,7 +67,7 @@ public class ChatUser {
                 ", chatId=" + chatId +
                 ", first_name="+first_name+
                 ", phoneNumber="+phoneNumber+
-                ", email = "+email+'}';
+                ", contacts="+contacts+'}';
     }
 }
 
