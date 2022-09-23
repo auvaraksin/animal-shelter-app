@@ -42,3 +42,23 @@ CREATE TABLE reporting
     status      varchar(255) NOT NULL DEFAULT 'DECLINED',
     CONSTRAINT report_primary_key PRIMARY KEY (id)
 );
+
+-- changeset EvBak:1
+   ALTER TABLE chat_user DROP COLUMN email;
+   ALTER TABLE chat_user DROP COLUMN phone_number;
+
+-- changeset EvBak:2
+   ALTER TABLE client DROP COLUMN email;
+
+-- changeset EvBak:4
+   ALTER TABLE client DROP COLUMN start_trial_date;
+
+-- changeset EvBak:5
+   ALTER TABLE client DROP COLUMN end_trial_date;
+   ALTER TABLE client DROP COLUMN status;
+
+
+
+
+
+
