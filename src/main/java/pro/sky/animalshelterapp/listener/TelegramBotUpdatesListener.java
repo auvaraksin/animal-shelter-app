@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pro.sky.animalshelterapp.exeption.EmptyMessageValueExeption;
+import pro.sky.animalshelterapp.repository.MessageSourseRepository;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -20,9 +22,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     /* variable 'state' provides exchange rules of text messages with telegram-bot */
     private String state = "default";
+    private final MessageSourseRepository messageSourseRepository;
 
     @Autowired
     private TelegramBot telegramBot;
+
+    public TelegramBotUpdatesListener(MessageSourseRepository messageSourseRepository) {
+        this.messageSourseRepository = messageSourseRepository;
+    }
 
     @PostConstruct
     public void init() {
@@ -170,84 +177,85 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /* This method generates SQL-request to the database to read record in the Shelter table containing general information about animal shelter */
     private void showGeneralInformation(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления общей информации о приюте");
+                messageSourseRepository.findById("info").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage()
+                );
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing schedule working time, address and another useful information about animal shelter */
     private void showScheduleAddressAnotherUsefulInformation(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления информации о расписании работы, адресе и схеме проезда к приюту");
+                messageSourseRepository.findById("adress").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing general information about safety rules in the animal shelter */
     private void showGeneralSafetyRules(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления общей информации о технике безопасности на территории приюта");
+                messageSourseRepository.findById("rules").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing meeting rules with pet */
     private void showMeetingRulesWithPet(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления правил знакомства с собакой");
+                messageSourseRepository.findById("animalMeetingRules").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing list of required documents before adopt a pet */
     private void showListOfRequiredDocumentsBeforeAdoptPet(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления списка документов, требуемых для взятия собаки из приюта");
+                messageSourseRepository.findById("documents").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about pet transportation handling rules */
     private void showRecommendationsAboutPetTransportationHandlingRules(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления общей информации о правилах перевозки домашних животных");
+                messageSourseRepository.findById("transportingRules").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for puppy */
     private void showRecommendationsAboutHouseholdConditionsForPuppy(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления общих рекомендаций по обустройству дома для щенка");
+                messageSourseRepository.findById("puppyHome").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for dog */
     private void showRecommendationsAboutHouseholdConditionsForDog(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления общих рекомендаций по обустройству дома для взрослой собаки");
+                messageSourseRepository.findById("dogHome").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for disabled dog */
     private void showRecommendationsAboutHouseholdConditionsForDisabledDog(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления общих рекомендаций по обустройству дома для собаки с ограниченными возможностями");
+                messageSourseRepository.findById("invalidDogHome").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing dog breeding specialist's pieces of advice */
     private void showRecommendationsOfDogBreedingSpecialist(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления советов кинолога");
+                messageSourseRepository.findById("kinolog").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing list of recommended dog breeding specialists */
     private void showListOfDogBreedingSpecialists(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления списка рекомендуемых кинологов для консультации");
+                messageSourseRepository.findById("kinologList").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing list of causes of rejection decision */
     private void showListOfRejectionCauses(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                "Здесь должен быть метод предоставления списка причин для отказа в заборе собаки из приюта");
+                messageSourseRepository.findById("rejection").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
         SendResponse response = telegramBot.execute(message);
     }
 
