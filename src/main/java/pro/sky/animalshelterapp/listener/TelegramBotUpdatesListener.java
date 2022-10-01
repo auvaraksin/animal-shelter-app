@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.sky.animalshelterapp.exeption.EmptyMessageValueExeption;
+import pro.sky.animalshelterapp.exeption.WrongDataSavingExeption;
+import pro.sky.animalshelterapp.model.Client;
+import pro.sky.animalshelterapp.repository.ClientUserRepository;
 import pro.sky.animalshelterapp.repository.MessageSourseRepository;
 
 import javax.annotation.PostConstruct;
@@ -23,12 +26,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /* variable 'state' provides exchange rules of text messages with telegram-bot */
     private String state = "default";
     private final MessageSourseRepository messageSourseRepository;
+    private final ClientUserRepository clientUserRepository;
 
     @Autowired
     private TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(MessageSourseRepository messageSourseRepository) {
+    public TelegramBotUpdatesListener(MessageSourseRepository messageSourseRepository, ClientUserRepository clientUserRepository) {
         this.messageSourseRepository = messageSourseRepository;
+        this.clientUserRepository = clientUserRepository;
     }
 
     @PostConstruct
@@ -165,8 +170,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         logger.info("State: {}", state);
                         break;
                     case "/call_volunteer":
-                    callVolunteer(update);
-                    logger.info("State: {}", state);
+                        callVolunteer(update);
+                        logger.info("State: {}", state);
                         break;
                 }
             }
@@ -178,7 +183,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private void showGeneralInformation(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
                 messageSourseRepository.findById("info").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage()
-                );
+        );
         SendResponse response = telegramBot.execute(message);
     }
 
@@ -289,12 +294,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private void showGeneralSignupPatternMessage(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
                 "<b>Введите свои контактные данные в формате</b>\n" +
-                        "<b>ФИО</b> (отчество не обязательно)\n" +
                         "<b>КОНТАКТНЫЙ НОМЕР ТЕЛЕФОНА</b> (в формате):\n +(<i>код страны</i>)(<i>код города/оператора</i>)(<i>номер телефона</i>)\n" +
                         "<b>АДРЕС ЭЛЕКТРОННОЙ ПОЧТЫ</b> (в формате): emailaddress@mail.com\n" +
                         "<b>Например:</b>\n" +
-                        "<i>Иванов Иван</i>\n" +
-                        "<i>+71234567890</i>\n" +
+                        "<i>Иванов Иван</i> " +
+                        "<i>+71234567890</i> " +
                         "<i>ivan.ivanov@gmail.com</i>");
         message.parseMode(ParseMode.HTML);
         SendResponse response = telegramBot.execute(message);
@@ -302,9 +306,51 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /* This method generates SQL-request to the database to create new record in the User table */
     private void callSignupMethod(Update update) {
-        SendMessage message = new SendMessage(update.message().chat().id(),
-                "Здесь должен быть метод обработки персональных данных");
-        SendResponse response = telegramBot.execute(message);
+        try {
+            Client client = new Client(update.message().chat().id(),
+                    update.message().chat().firstName(), parsingNameOfClient(update),
+                    parsingContactsOfClient(update));
+            if (!parsingNameOfClient(update).isEmpty() && !parsingContactsOfClient(update).isEmpty()) {
+                clientUserRepository.save(client);
+                SendMessage message = new SendMessage(update.message().chat().id(),
+                        "Данные обработаны");
+                SendResponse response = telegramBot.execute(message);
+            } else {
+                SendMessage message = new SendMessage(update.message().chat().id(),
+                        "Данные не обработаны");
+                SendResponse response = telegramBot.execute(message);
+            }
+        } catch (WrongDataSavingExeption e) {
+            System.out.println("Ошибка сохранения данных");
+        }
+    }
+
+    // The method parses client name from string message
+    private String parsingNameOfClient(Update update) {
+        String[] words = update.message().text().split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String i : words) {
+            if (i.charAt(0) == '+') {
+                break;
+            } else {
+                sb.append(i);
+                sb.append(" ");
+            }
+        }
+        if (sb.isEmpty()) {
+            return sb.toString();
+        } else {
+            sb.deleteCharAt(sb.length() - 1);
+            return sb.toString();
+        }
+    }
+    // The method parses client contacts from string message
+    private String parsingContactsOfClient(Update update) {
+        if (update.message().text().contains(" +")) {
+            return update.message().text().substring(update.message().text().indexOf("+"));
+        } else {
+            return "";
+        }
     }
 
     /* This method generates and sends message to volunteer's chat */
@@ -316,8 +362,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             userId = "@" + update.callbackQuery().from().username();
             SendMessage message = new SendMessage(1281939927, "Вам необходимо связаться с пользователем " + userId + ". Ему требуется помощь");
             SendResponse response = telegramBot.execute(message);
-        }
-        else {
+        } else {
             SendMessage message = new SendMessage(1281939927, "Вам необходимо связаться с пользователем id " + userId + ". Ему требуется помощь");
             SendResponse response = telegramBot.execute(message);
         }

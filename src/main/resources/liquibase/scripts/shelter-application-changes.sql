@@ -57,6 +57,11 @@ CREATE TABLE reporting
    ALTER TABLE client DROP COLUMN end_trial_date;
    ALTER TABLE client DROP COLUMN status;
 
+-- changeset EvBak:6
+   ALTER TABLE client DROP COLUMN phone_number;
+   ALTER TABLE client ALTER COLUMN name DROP NOT NULL;
+   ALTER TABLE client ALTER COLUMN contacts DROP NOT NULL;
+
 
 
 
