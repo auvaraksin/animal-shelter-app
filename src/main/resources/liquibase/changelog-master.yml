@@ -1,3 +1,0 @@
-databaseChangeLog:
-  - include:
-      file: liquibase/scripts/shelter-application-changes.sql
