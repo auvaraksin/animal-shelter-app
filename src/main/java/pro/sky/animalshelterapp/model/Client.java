@@ -13,10 +13,8 @@ public class Client {
     private Long id;
     private Long chatId;
     private String first_name;
-
     private String name;
 
-    private String phoneNumber;
     private String contacts;
     private String animal_type;
     private int successReportNumber;
@@ -25,6 +23,13 @@ public class Client {
     private LocalDate dateOfEnd;
 
     public Client() {}
+
+    public Client(Long chatId, String first_name, String name,String contacts) {
+        this.chatId = chatId;
+        this.first_name = first_name;
+        this.name = name;
+        this.contacts = contacts;
+    }
 
     public Long getId() {
         return id;
@@ -106,26 +111,18 @@ public class Client {
         this.name = name;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Client client = (Client) o;
         return successReportNumber == client.successReportNumber && clientStatus == client.clientStatus && Objects.equals(id, client.id) && Objects.equals(chatId, client.chatId) && Objects.equals(first_name, client.first_name) && Objects.equals(contacts, client.contacts)
-                && Objects.equals(animal_type, client.animal_type) && Objects.equals(name,client.name) && Objects.equals(phoneNumber,client.phoneNumber)&& Objects.equals(dateOfStart, client.dateOfStart) && Objects.equals(dateOfEnd, client.dateOfEnd);
+                && Objects.equals(animal_type, client.animal_type) && Objects.equals(name,client.name) && Objects.equals(dateOfStart, client.dateOfStart) && Objects.equals(dateOfEnd, client.dateOfEnd);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, first_name, contacts, animal_type, name, phoneNumber, successReportNumber, clientStatus, dateOfStart, dateOfEnd);
+        return Objects.hash(id, chatId, first_name, contacts, animal_type, name, successReportNumber, clientStatus, dateOfStart, dateOfEnd);
     }
 
     @Override
