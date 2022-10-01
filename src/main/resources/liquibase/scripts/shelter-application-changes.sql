@@ -62,6 +62,43 @@ CREATE TABLE reporting
    ALTER TABLE client ALTER COLUMN name DROP NOT NULL;
    ALTER TABLE client ALTER COLUMN contacts DROP NOT NULL;
 
+--changeset EvBak:8
+     INSERT INTO message_source (digest,response_message)
+     VALUES ('info', 'Наш приют "Shelter" существует уже два года и предоставляет услуги по патронажу и усыновлению собак и кошек');
+
+--changeset EvBak:9
+    INSERT INTO message_source
+    values ('adress', 'Наш приют расположен по адресу: РК, г. Астана, ул. Абая, 22, телефон 89999991111, email shelter@mail.ru Время работы: ежедневно с 9.00 до 18.00');
+
+    INSERT INTO message_source
+    values ('rules', 'На территории приюта нельзя пить, курить, кричать, пугать животных, приводить детей младше 7 лет');
+
+    INSERT INTO message_source
+    values ('animalMeetingRules', 'Приближайтесь к животному осторожно, без резких движений, разговаривайте спокойно, ласково, называйте по кличке');
+
+    INSERT INTO message_source
+    values ('documents', 'Для усыновления животного необходимы следующие документы: паспорт,заполенный договор, справка от врача об отсутствии аллергии');
+
+    INSERT INTO message_source
+    values ('transportingRules', 'Транспортировать животное можно только в специальной сумке или переноске');
+
+    INSERT INTO message_source
+    values ('puppyHome', 'Домик для щенка должен быть красивым и удобным, с приспособлением для точки зубов и когтей и игрушками');
+
+    INSERT INTO message_source
+    values ('dogHome', 'Дом для взрослой собаки должен быть оборудован спальным местом, поилкой, миской');
+
+    INSERT INTO message_source
+    values ('invalidDogHome', 'Дом для собаки с ограниченными возможностями должен иметь постоянный доступ к животному, желательно, быть траспортабельным');
+
+    INSERT INTO message_source
+    values ('kinolog', 'Кинологи советуют не сразу приступать к дрессировке, дать собаке сначала привыкнуть');
+
+    INSERT INTO message_source
+    values ('kinologList', 'Иванов Иван Иванович, Петров Петр Петрович');
+
+    INSERT INTO message_source
+    values ('rejection', 'Причиной отказа может быть: наличие аллергии, неблагоприятные жилищные условия, алкоголизм, и т.п. Ну, или если просто произведёте неблагоприятное впечатление');
 
 
 
