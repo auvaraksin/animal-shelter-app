@@ -1,29 +1,109 @@
 package pro.sky.animalshelterapp.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
-//Модель таблицы, куда будут попадать все первоначально общающиеся с ботом
 @Entity
+@Table(name = "client")
 public class ChatUser {
+
+
+    public enum ChatUserStatus {
+
+        GUEST,
+        ADOPTER_ON_TRIAL,
+        ADOPTER_TRIAL_FAILED,
+        OWNER
+
+    }
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+    @Column(name = "chat_id")
     private Long chatId;
-    private String first_name;
-    /*На первом этапе бот тоже может записать данные пользователя
-    * Поэтому тут тоже можно запросить телефон-емайл*/
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "phone_number")
     private String phoneNumber;
-    private String contacts;
+
+    @Column(name = "email")
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    private ChatUserStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "animal_type", referencedColumnName = "type")
+    private Animal animal;
+
+    @OneToMany(mappedBy = "chatUser", cascade = CascadeType.ALL)
+    private List<Report> reportList;
+
+    @Column(name = "start_trial_date")
+    private LocalDate startTrialDate;
+
+    @Column(name = "end_trial_date")
+    private LocalDate endTrialDate;
 
     public ChatUser() {
     }
 
-    public ChatUser(long chatId, String first_name) {
+    public ChatUser(String name, String phoneNumber, String email) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+
+    public ChatUser(String name, String phoneNumber, String email, Animal animal) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.animal = animal;
+    }
+
+    public Animal getAnimal() {
+        return animal;
+    }
+
+    public void setAnimal(Animal animal) {
+        this.animal = animal;
+    }
+
+    public ChatUserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ChatUserStatus status) {
+        this.status = status;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Long chatId) {
         this.chatId = chatId;
-        this.first_name = first_name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPhoneNumber() {
@@ -34,40 +114,61 @@ public class ChatUser {
         this.phoneNumber = phoneNumber;
     }
 
-    public Long getId() {
-        return id;
+    public String getEmail() {
+        return email;
     }
 
-    public long getChatId() {
-        return chatId;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getFirst_name(){return first_name;}
+    public LocalDate getStartTrialDate() {
+        return startTrialDate;
+    }
 
-    public String getContacts() {return contacts;}
+    public void setStartTrialDate(LocalDate startTrialDate) {
+        this.startTrialDate = startTrialDate;
+    }
 
+    public LocalDate getEndTrialDate() {
+        return endTrialDate;
+    }
+
+    public void setEndTrialDate(LocalDate endTrialDate) {
+        this.endTrialDate = endTrialDate;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChatUser user1 = (ChatUser) o;
-        return chatId == user1.chatId && id.equals(user1.id)&&first_name.equals(user1.first_name)&&phoneNumber.equals(user1.phoneNumber)&&contacts.equals(user1.contacts);
+        if (!(o instanceof ChatUser)) return false;
+        ChatUser chatUser = (ChatUser) o;
+        return getId().equals(chatUser.getId()) && getChatId().equals(chatUser.getChatId())
+                && getName().equals(chatUser.getName()) && getPhoneNumber().equals(chatUser.getPhoneNumber())
+                && getEmail().equals(chatUser.getEmail()) && getStatus() == chatUser.getStatus()
+                && getAnimal().equals(chatUser.getAnimal()) && reportList.equals(chatUser.reportList)
+                && getStartTrialDate().equals(chatUser.getStartTrialDate())
+                && getEndTrialDate().equals(chatUser.getEndTrialDate());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, first_name, phoneNumber,contacts);
+        return Objects.hash(getId(), getChatId(), getName(), getPhoneNumber(), getEmail(), getStatus(),
+                getAnimal(), reportList, getStartTrialDate(), getEndTrialDate());
     }
 
     @Override
     public String toString() {
-        return "User{" +
+        return "ChatUser{" +
                 "id=" + id +
                 ", chatId=" + chatId +
-                ", first_name="+first_name+
-                ", phoneNumber="+phoneNumber+
-                ", contacts="+contacts+'}';
+                ", name='" + name + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", status=" + status +
+                ", animal=" + animal +
+                ", startTrialDate=" + startTrialDate +
+                ", endTrialDate=" + endTrialDate +
+                '}';
     }
 }
-
