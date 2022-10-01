@@ -1,4 +1,4 @@
-package pro.sky.animalshelterapp.model;
+package pro.sky.animalshelterapp.models;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

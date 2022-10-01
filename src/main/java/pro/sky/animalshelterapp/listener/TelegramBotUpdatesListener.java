@@ -4,18 +4,16 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
-import com.pengrad.telegrambot.request.ForwardMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pro.sky.animalshelterapp.exeption.EmptyMessageValueExeption;
-import pro.sky.animalshelterapp.exeption.WrongDataSavingExeption;
-import pro.sky.animalshelterapp.model.Client;
-import pro.sky.animalshelterapp.repository.ClientUserRepository;
-import pro.sky.animalshelterapp.repository.MessageSourseRepository;
+import pro.sky.animalshelterapp.exeptions.WrongDataSavingExeption;
+import pro.sky.animalshelterapp.interfaces.ClientService;
+import pro.sky.animalshelterapp.interfaces.MessageSourceService;
+import pro.sky.animalshelterapp.models.Client;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -25,15 +23,16 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     /* variable 'state' provides exchange rules of text messages with telegram-bot */
     private String state = "default";
-    private final MessageSourseRepository messageSourseRepository;
-    private final ClientUserRepository clientUserRepository;
+    private final MessageSourceService messageSourceService;
+    private final ClientService clientService;
+//    private final MessageSourceRepository messageSourceRepository;
 
     @Autowired
     private TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(MessageSourseRepository messageSourseRepository, ClientUserRepository clientUserRepository) {
-        this.messageSourseRepository = messageSourseRepository;
-        this.clientUserRepository = clientUserRepository;
+    public TelegramBotUpdatesListener(MessageSourceService messageSourceService, ClientService clientService){
+        this.messageSourceService = messageSourceService;
+                this.clientService = clientService;
     }
 
     @PostConstruct
@@ -182,85 +181,84 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /* This method generates SQL-request to the database to read record in the Shelter table containing general information about animal shelter */
     private void showGeneralInformation(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("info").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage()
-        );
+                messageSourceService.findById("info"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing schedule working time, address and another useful information about animal shelter */
     private void showScheduleAddressAnotherUsefulInformation(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("adress").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("adress"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing general information about safety rules in the animal shelter */
     private void showGeneralSafetyRules(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("rules").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("rules"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing meeting rules with pet */
     private void showMeetingRulesWithPet(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("animalMeetingRules").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("animalMeetingRules"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing list of required documents before adopt a pet */
     private void showListOfRequiredDocumentsBeforeAdoptPet(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("documents").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("documents"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about pet transportation handling rules */
     private void showRecommendationsAboutPetTransportationHandlingRules(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("transportingRules").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("transportingRules"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for puppy */
     private void showRecommendationsAboutHouseholdConditionsForPuppy(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("puppyHome").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("puppyHome"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for dog */
     private void showRecommendationsAboutHouseholdConditionsForDog(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("dogHome").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("dogHome"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for disabled dog */
     private void showRecommendationsAboutHouseholdConditionsForDisabledDog(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("invalidDogHome").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("invalidDogHome"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing dog breeding specialist's pieces of advice */
     private void showRecommendationsOfDogBreedingSpecialist(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("kinolog").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("kinolog"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing list of recommended dog breeding specialists */
     private void showListOfDogBreedingSpecialists(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("kinologList").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("kinologList"));
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to read record in the Shelter table containing list of causes of rejection decision */
     private void showListOfRejectionCauses(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
-                messageSourseRepository.findById("rejection").orElseThrow(EmptyMessageValueExeption::new).getResponseMessage());
+                messageSourceService.findById("rejection"));
         SendResponse response = telegramBot.execute(message);
     }
 
@@ -311,7 +309,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     update.message().chat().firstName(), parsingNameOfClient(update),
                     parsingContactsOfClient(update));
             if (!parsingNameOfClient(update).isEmpty() && !parsingContactsOfClient(update).isEmpty()) {
-                clientUserRepository.save(client);
+                clientService.createClient(client);
                 SendMessage message = new SendMessage(update.message().chat().id(),
                         "Данные обработаны");
                 SendResponse response = telegramBot.execute(message);
@@ -325,7 +323,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
-    // The method parses client name from string message
+    // This method parses client's name from the message content
     private String parsingNameOfClient(Update update) {
         String[] words = update.message().text().split(" ");
         StringBuilder sb = new StringBuilder();
