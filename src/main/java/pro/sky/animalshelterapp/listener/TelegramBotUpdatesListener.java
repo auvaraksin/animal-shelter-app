@@ -25,15 +25,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private String state = "default";
     private final MessageSourceService messageSourceService;
     private final ClientService clientService;
-//    private final MessageSourceRepository messageSourceRepository;
+
+    public TelegramBotUpdatesListener(MessageSourceService messageSourceService, ClientService clientService) {
+        this.messageSourceService = messageSourceService;
+        this.clientService = clientService;
+    }
 
     @Autowired
     private TelegramBot telegramBot;
-
-    public TelegramBotUpdatesListener(MessageSourceService messageSourceService, ClientService clientService){
-        this.messageSourceService = messageSourceService;
-                this.clientService = clientService;
-    }
 
     @PostConstruct
     public void init() {
@@ -342,6 +341,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             return sb.toString();
         }
     }
+
     // The method parses client contacts from string message
     private String parsingContactsOfClient(Update update) {
         if (update.message().text().contains(" +")) {
