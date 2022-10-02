@@ -38,6 +38,7 @@ public class ClientServiceImpl implements ClientService {
         logger.info("Method to update the record in the DB in table 'Client' was invoked ");
         Client client = clientRepository.findByName(name);
         client.setStatus(status);
+        clientRepository.save(client);
         return client;
     }
 
