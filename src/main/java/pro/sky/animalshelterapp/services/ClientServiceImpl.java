@@ -30,6 +30,7 @@ public class ClientServiceImpl implements ClientService {
         client.setStatus(status);
         client.setDateOfStart(dateOfStart);
         client.setDateOfEnd(dateOfEnd);
+        clientRepository.save(client);
         return client;
     }
 
