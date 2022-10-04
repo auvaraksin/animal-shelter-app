@@ -2,13 +2,19 @@ package pro.sky.animalshelterapp.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Document;
+import com.pengrad.telegrambot.model.File;
+import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
+import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pro.sky.animalshelterapp.exeptions.WrongDataSavingExeption;
 import pro.sky.animalshelterapp.interfaces.ClientService;
@@ -16,13 +22,24 @@ import pro.sky.animalshelterapp.interfaces.MessageSourceService;
 import pro.sky.animalshelterapp.models.Client;
 
 import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
+
+import static com.datical.liquibase.ext.init.InitProjectUtil.getExtension;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     /* variable 'state' provides exchange rules of text messages with telegram-bot */
     private String state = "default";
+    //@Value("${animal-shelter-app.photo.dir.path}")
+    //private String photoDir;
     private final MessageSourceService messageSourceService;
     private final ClientService clientService;
 
@@ -38,7 +55,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public void init() {
         telegramBot.setUpdatesListener(this);
     }
-
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
@@ -73,7 +89,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         logger.info("State: {}", state);
                         break;
                     case "report_mode":
-                        callReportApplyMethod(update);
+                        try {
+                            callReportApplyMethod(update);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         state = "main_menu";
                         logger.info("State: {}", state);
                         break;
@@ -275,13 +295,22 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /* This method shows up general message before start report filling procedure */
     private void showGeneralMessageBeforeStartReportFilling(Update update) {
+
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
                 "Заполните отчет по установленной форме, не забудьте приложить фотографию питомца");
         SendResponse response = telegramBot.execute(message);
     }
 
     /* This method generates SQL-request to the database to create new record in the User table */
-    private void callReportApplyMethod(Update update) {
+    private void callReportApplyMethod(Update update) throws IOException {
+        Document photo = update.message().document();
+        String fileId = photo.fileId();
+        GetFile request = new GetFile(fileId);
+        GetFileResponse getFileResponse = telegramBot.execute(request);
+        File file = getFileResponse.file();
+        String fullPath = telegramBot.getFullFilePath(file);
+        //BufferedImage image = ImageIO.read(new java.io.File(fullPath));
+        //ImageIO.write(image, "jpg",new java.io.File("photo/"+fileId+".jpg"));
         SendMessage message = new SendMessage(update.message().chat().id(),
                 "Здесь должен быть метод обработки ежедневного отчета");
         SendResponse response = telegramBot.execute(message);
