@@ -20,6 +20,8 @@ import pro.sky.animalshelterapp.exeptions.WrongDataSavingExeption;
 import pro.sky.animalshelterapp.interfaces.ClientService;
 import pro.sky.animalshelterapp.interfaces.MessageSourceService;
 import pro.sky.animalshelterapp.models.Client;
+import pro.sky.animalshelterapp.models.Report;
+import pro.sky.animalshelterapp.repositories.ReportRepository;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,11 +44,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     //@Value("${animal-shelter-app.photo.dir.path}")
     //private String photoDir;
     private final MessageSourceService messageSourceService;
+
+    private final ReportRepository reportRepository;
     private final ClientService clientService;
 
-    public TelegramBotUpdatesListener(MessageSourceService messageSourceService, ClientService clientService) {
+    public TelegramBotUpdatesListener(MessageSourceService messageSourceService, ClientService clientService, ReportRepository reportRepository) {
         this.messageSourceService = messageSourceService;
         this.clientService = clientService;
+        this.reportRepository = reportRepository;
     }
 
     @Autowired
@@ -303,17 +309,37 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /* This method generates SQL-request to the database to create new record in the User table */
     private void callReportApplyMethod(Update update) throws IOException {
-        Document photo = update.message().document();
-        String fileId = photo.fileId();
+        Report report = new Report();
+        //Document photo = update.message().document();
+        try {
+            String text = update.message().caption();
+            report.setText(text);
+        } catch (NullPointerException e) {
+            SendMessage message = new SendMessage(update.message().chat().id(),
+                    "Где текст?");
+            SendResponse response = telegramBot.execute(message);}
+        GetFile getFileRequest = new GetFile(update.message().photo()[0].fileId());
+        GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
+        File file = getFileResponse.file();
+        byte[] fileContent = telegramBot.getFileContent(file);
+
+        /*String fileId = photo.fileId();
         GetFile request = new GetFile(fileId);
         GetFileResponse getFileResponse = telegramBot.execute(request);
-        File file = getFileResponse.file();
-        String fullPath = telegramBot.getFullFilePath(file);
+        reportRepository.save(report);*/
+       // String fullPath = telegramBot.getFullFilePath(file);
         //BufferedImage image = ImageIO.read(new java.io.File(fullPath));
         //ImageIO.write(image, "jpg",new java.io.File("photo/"+fileId+".jpg"));
-        SendMessage message = new SendMessage(update.message().chat().id(),
-                "Здесь должен быть метод обработки ежедневного отчета");
-        SendResponse response = telegramBot.execute(message);
+        if (report.getText()==null) {
+            SendMessage message = new SendMessage(update.message().chat().id(),
+                    "У вас отсутствует текст");
+            SendResponse response = telegramBot.execute(message);
+        }
+        else {
+            SendMessage message = new SendMessage(update.message().chat().id(),
+                    "Отчёт обработан");
+            SendResponse response = telegramBot.execute(message);
+        }
     }
 
     /* This method shows up pattern of the contact data application form */

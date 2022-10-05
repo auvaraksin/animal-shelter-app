@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -20,6 +21,8 @@ public class Report {
     private byte[] data;
     private String text;
     private boolean status;
+
+    private LocalDate date;
 
     public Long getId() {
         return id;
@@ -85,17 +88,27 @@ public class Report {
         this.status = status;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
-        return fileSize == report.fileSize && status == report.status && Objects.equals(id, report.id) && Objects.equals(chatId, report.chatId) && Objects.equals(filePath, report.filePath) && Objects.equals(mediaType, report.mediaType) && Arrays.equals(data, report.data) && Objects.equals(text, report.text);
+        return fileSize == report.fileSize && status == report.status && Objects.equals(id, report.id)
+                && Objects.equals(chatId, report.chatId) && Objects.equals(filePath, report.filePath) && Objects.equals(mediaType, report.mediaType) && Arrays.equals(data, report.data)
+                && Objects.equals(text, report.text) && Objects.equals(date,report.date);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, chatId, filePath, fileSize, mediaType, text, status);
+        int result = Objects.hash(id, chatId, filePath, fileSize, mediaType, text, status, date);
         result = 31 * result + Arrays.hashCode(data);
         return result;
     }
