@@ -61,6 +61,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public void init() {
         telegramBot.setUpdatesListener(this);
     }
+
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
@@ -95,6 +96,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         logger.info("State: {}", state);
                         break;
                     case "report_mode":
+                        if (checkReportQuality(update)) {
+                            try {
+                                callReportApplyMethod(update);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            state = "main_menu";
+                            logger.info("State: {}", state);
+                            break;
+                        } else {
+                            state = "report_mode_additional_check";
+                            logger.info("State: {}", state);
+                            break;
+                        }
+                    case "report_mode_additional_check":
                         try {
                             callReportApplyMethod(update);
                         } catch (IOException e) {
@@ -301,7 +317,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /* This method shows up general message before start report filling procedure */
     private void showGeneralMessageBeforeStartReportFilling(Update update) {
-
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
                 "Заполните отчет по установленной форме, не забудьте приложить фотографию питомца");
         SendResponse response = telegramBot.execute(message);
@@ -310,36 +325,47 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /* This method generates SQL-request to the database to create new record in the User table */
     private void callReportApplyMethod(Update update) throws IOException {
         Report report = new Report();
-        //Document photo = update.message().document();
-        try {
-            String text = update.message().caption();
-            report.setText(text);
-        } catch (NullPointerException e) {
-            SendMessage message = new SendMessage(update.message().chat().id(),
-                    "Где текст?");
-            SendResponse response = telegramBot.execute(message);}
-        GetFile getFileRequest = new GetFile(update.message().photo()[0].fileId());
-        GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
-        File file = getFileResponse.file();
-        byte[] fileContent = telegramBot.getFileContent(file);
+        if (update.message().photo() == null) {
+            report.setText(update.message().text());
+        }
+        if (update.message().caption() == null) {
+            //здесь должен быть метод чтения фотографии и записи её в БД
+        }
+        //Здесь должен быть метод записи текста и фотографии в БД
+        SendMessage message = new SendMessage(update.message().chat().id(),
+                "Отчёт принят");
+        SendResponse response = telegramBot.execute(message);
+        //Метод скачивания файла
+
+//        GetFile getFileRequest = new GetFile(update.message().photo()[0].fileId());
+//        GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
+//        File file = getFileResponse.file();
+//        byte[] fileContent = telegramBot.getFileContent(file);
 
         /*String fileId = photo.fileId();
         GetFile request = new GetFile(fileId);
         GetFileResponse getFileResponse = telegramBot.execute(request);
         reportRepository.save(report);*/
-       // String fullPath = telegramBot.getFullFilePath(file);
+        // String fullPath = telegramBot.getFullFilePath(file);
         //BufferedImage image = ImageIO.read(new java.io.File(fullPath));
         //ImageIO.write(image, "jpg",new java.io.File("photo/"+fileId+".jpg"));
-        if (report.getText()==null) {
+    }
+
+    /* This method provides check a quality of reports */
+    private Boolean checkReportQuality(Update update) {
+        if (update.message().photo() == null) {
             SendMessage message = new SendMessage(update.message().chat().id(),
-                    "У вас отсутствует текст");
+                    "В отчете отсутствует фотография. Дополните отчет фотографией питомца и повторите отправку");
             SendResponse response = telegramBot.execute(message);
+            return false;
         }
-        else {
+        if (update.message().caption() == null) {
             SendMessage message = new SendMessage(update.message().chat().id(),
-                    "Отчёт обработан");
+                    "В отчете отсутствует описание жизни питомца. Дополните отчет описанием жизни питомца и повторите отправку");
             SendResponse response = telegramBot.execute(message);
+            return false;
         }
+        return true;
     }
 
     /* This method shows up pattern of the contact data application form */
