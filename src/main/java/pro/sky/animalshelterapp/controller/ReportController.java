@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.animalshelterapp.service.ReportService;
 import pro.sky.animalshelterapp.model.Report;
-
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+//Данный контроллер предназначен для отчетов по пользователю(усыновителю).
+//А именно поленый такст полученный от усыновителя, фотографии, его ID и статуса!
 @RestController
 @RequestMapping("/report")
 public class ReportController {
@@ -127,7 +128,7 @@ public class ReportController {
 
     @Operation(
             tags = "Отчеты усыновителей",
-            summary = "Редактирование статуса отчетв пользователя",
+            summary = "Редактирование статуса отчета пользователя",
             responses = {
                     @ApiResponse(
                             responseCode = "200",

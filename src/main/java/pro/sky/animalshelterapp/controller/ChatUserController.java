@@ -11,6 +11,10 @@ import pro.sky.animalshelterapp.service.ChatUserService;
 
 import java.util.Collection;
 
+
+//Данный контроллер предназначен для пользователя (усыновителя).
+// В нем проводятся операции по добавлению / изменению(редактированию) / удалению пользователя (усыновителя) собак и кошек!
+
 @RestController
 @RequestMapping("/user")
 public class ChatUserController {

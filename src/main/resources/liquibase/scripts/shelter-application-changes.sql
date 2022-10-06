@@ -11,10 +11,13 @@ CREATE TABLE animal
 );
 
 INSERT INTO animal
-values (1, 'DOG');
+values (1, 'CAT');
 
 INSERT INTO animal
-values (2, 'NO_ANIMAL');
+values (2, 'DOG');
+
+INSERT INTO animal
+values (3, 'NO_ANIMAL');
 
 CREATE TABLE client
 (

@@ -14,6 +14,7 @@ public class Animal implements Serializable {
     public enum AnimalTypes {
 
         DOG,
+        CAT,
         NO_ANIMAL
     }
 
@@ -76,7 +77,7 @@ public class Animal implements Serializable {
         return "Animal{" +
                 "id=" + id +
                 ", type=" + type +
-                ", ChatUsers=" + chatUsers +
+                ", chatUsers=" + chatUsers +
                 '}';
     }
 }

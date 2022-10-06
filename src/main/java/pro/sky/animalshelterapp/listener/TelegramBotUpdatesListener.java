@@ -44,8 +44,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /**
      * Проверяет и обрабатывает обновление чата;
-     * @ param обновления используются для получения и проверки
-     * @ return подтверждает все обновления
+     * @param обновления используются для получения и проверки
+     * @return подтверждает все обновления
      */
 
     @Override

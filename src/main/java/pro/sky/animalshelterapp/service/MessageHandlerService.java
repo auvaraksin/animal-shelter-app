@@ -11,6 +11,16 @@ public interface MessageHandlerService {
 
     void sendMessage(Long chatId, String inputMessage);
 
-    //Обработка сообщений
+    void sendDocument(Long chatId, java.io.File file);
+
+    void sendReminderAboutLackOfReport();
+
+    void sendRemindersToVolunteerAboutEndOfTrial();
+
+    void sendNotificationAboutSuccessReport();
+
+    void sendNotificationAboutDeclinedReport();
+
+    void sendNotificationAboutResultOfTrial();
 
 }
