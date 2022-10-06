@@ -17,8 +17,6 @@ public class Report {
     private String filePath;
     private long fileSize;
     private String mediaType;
-    @Lob
-    private byte[] data;
     private String text;
     private boolean status;
 
@@ -64,14 +62,6 @@ public class Report {
         this.mediaType = mediaType;
     }
 
-    public byte[] getData() {
-        return data;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
-    }
-
     public String getText() {
         return text;
     }
@@ -102,14 +92,13 @@ public class Report {
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
         return fileSize == report.fileSize && status == report.status && Objects.equals(id, report.id)
-                && Objects.equals(chatId, report.chatId) && Objects.equals(filePath, report.filePath) && Objects.equals(mediaType, report.mediaType) && Arrays.equals(data, report.data)
+                && Objects.equals(chatId, report.chatId) && Objects.equals(filePath, report.filePath) && Objects.equals(mediaType, report.mediaType)
                 && Objects.equals(text, report.text) && Objects.equals(date,report.date);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(id, chatId, filePath, fileSize, mediaType, text, status, date);
-        result = 31 * result + Arrays.hashCode(data);
         return result;
     }
 
@@ -121,7 +110,6 @@ public class Report {
                 ", filePath='" + filePath + '\'' +
                 ", fileSize=" + fileSize +
                 ", mediaType='" + mediaType + '\'' +
-                ", data=" + Arrays.toString(data) +
                 ", text='" + text + '\'' +
                 ", status=" + status +
                 '}';

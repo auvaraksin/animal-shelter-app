@@ -26,10 +26,12 @@ import pro.sky.animalshelterapp.repositories.ReportRepository;
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -96,6 +98,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         logger.info("State: {}", state);
                         break;
                     case "report_mode":
+                        Report report = new Report();
                         if (checkReportQuality(update)) {
                             try {
                                 callReportApplyMethod(update);
@@ -324,36 +327,65 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /* This method generates SQL-request to the database to create new record in the User table */
     private void callReportApplyMethod(Update update) throws IOException {
-        Report report = new Report();
-        if (update.message().photo() == null) {
+         Report report = new Report();
+         if (update.message().document() == null) {
             report.setText(update.message().text());
         }
         if (update.message().caption() == null) {
-            //здесь должен быть метод чтения фотографии и записи её в БД
+            String fileId = update.message().document().fileId();
+            GetFile getFileRequest = new GetFile(fileId);
+            GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
+            File file = getFileResponse.file();
+            byte[] fileContent = telegramBot.getFileContent(file);
+            String pathToDirectory = "photo//"+ fileId+".jpg";
+            try(FileOutputStream fos=new FileOutputStream(pathToDirectory))
+            {
+                fos.write(fileContent, 0, fileContent.length);
+                logger.info("photo is saved");
+            }
+            catch(IOException ex){
+
+                System.out.println(ex.getMessage());
+            }
+            report.setFilePath(pathToDirectory);
+            report.setFileSize(update.message().document().fileSize());
+            report.setMediaType("image/jpeg");
         }
-        //Здесь должен быть метод записи текста и фотографии в БД
+        String fileId = update.message().document().fileId();
+        Long fileSize = update.message().document().fileSize();
+        GetFile getFileRequest = new GetFile(fileId);
+        GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
+        File file = getFileResponse.file();
+        byte[] fileContent = telegramBot.getFileContent(file);
+        String pathToDirectory = "photo//"+ fileId+".jpg";
+        try(FileOutputStream fos=new FileOutputStream(pathToDirectory))
+        {
+            fos.write(fileContent, 0, fileContent.length);
+            logger.info("photo is saved");
+        }
+        catch(IOException ex){
+
+            System.out.println(ex.getMessage());
+        }
+        report.setText(update.message().caption());
+        report.setFilePath(pathToDirectory);
+        report.setFileSize(fileSize);
+        report.setMediaType("image/jpeg");
+        report.setStatus(true);
+        report.setDate(LocalDate.now());
+        report.setChatId(update.message().chat().id());
         SendMessage message = new SendMessage(update.message().chat().id(),
                 "Отчёт принят");
         SendResponse response = telegramBot.execute(message);
-        //Метод скачивания файла
-
-//        GetFile getFileRequest = new GetFile(update.message().photo()[0].fileId());
-//        GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
-//        File file = getFileResponse.file();
-//        byte[] fileContent = telegramBot.getFileContent(file);
-
-        /*String fileId = photo.fileId();
-        GetFile request = new GetFile(fileId);
-        GetFileResponse getFileResponse = telegramBot.execute(request);
-        reportRepository.save(report);*/
-        // String fullPath = telegramBot.getFullFilePath(file);
-        //BufferedImage image = ImageIO.read(new java.io.File(fullPath));
-        //ImageIO.write(image, "jpg",new java.io.File("photo/"+fileId+".jpg"));
+        reportRepository.save(report);
     }
 
+    private Report createReportModel() {
+        return new Report();
+    }
     /* This method provides check a quality of reports */
     private Boolean checkReportQuality(Update update) {
-        if (update.message().photo() == null) {
+         if (update.message().document() == null) {
             SendMessage message = new SendMessage(update.message().chat().id(),
                     "В отчете отсутствует фотография. Дополните отчет фотографией питомца и повторите отправку");
             SendResponse response = telegramBot.execute(message);
