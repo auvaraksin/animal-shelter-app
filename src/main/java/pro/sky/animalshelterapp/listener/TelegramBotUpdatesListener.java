@@ -2,9 +2,7 @@ package pro.sky.animalshelterapp.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.Document;
 import com.pengrad.telegrambot.model.File;
-import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.GetFile;
@@ -14,46 +12,37 @@ import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pro.sky.animalshelterapp.exeptions.WrongDataSavingExeption;
 import pro.sky.animalshelterapp.interfaces.ClientService;
 import pro.sky.animalshelterapp.interfaces.MessageSourceService;
+import pro.sky.animalshelterapp.interfaces.ReportService;
 import pro.sky.animalshelterapp.models.Client;
 import pro.sky.animalshelterapp.models.Report;
-import pro.sky.animalshelterapp.repositories.ReportRepository;
 
 import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.FileOutputStream;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.net.URL;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-
-import static com.datical.liquibase.ext.init.InitProjectUtil.getExtension;
 
 @Service
+@Transactional
 public class TelegramBotUpdatesListener implements UpdatesListener {
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     /* variable 'state' provides exchange rules of text messages with telegram-bot */
     private String state = "default";
-    //@Value("${animal-shelter-app.photo.dir.path}")
-    //private String photoDir;
     private final MessageSourceService messageSourceService;
 
-    private final ReportRepository reportRepository;
+    private final ReportService reportService;
     private final ClientService clientService;
 
-    public TelegramBotUpdatesListener(MessageSourceService messageSourceService, ClientService clientService, ReportRepository reportRepository) {
+    public TelegramBotUpdatesListener(MessageSourceService messageSourceService, ClientService clientService, ReportService reportService) {
         this.messageSourceService = messageSourceService;
         this.clientService = clientService;
-        this.reportRepository = reportRepository;
+        this.reportService = reportService;
     }
 
     @Autowired
@@ -98,7 +87,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         logger.info("State: {}", state);
                         break;
                     case "report_mode":
-                        Report report = new Report();
                         if (checkReportQuality(update)) {
                             try {
                                 callReportApplyMethod(update);
@@ -327,65 +315,84 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /* This method generates SQL-request to the database to create new record in the User table */
     private void callReportApplyMethod(Update update) throws IOException {
-         Report report = new Report();
-         if (update.message().document() == null) {
-            report.setText(update.message().text());
+        if (update.message().photo() == null) {
+            saveReportWithoutPhoto(update);
         }
-        if (update.message().caption() == null) {
-            String fileId = update.message().document().fileId();
-            GetFile getFileRequest = new GetFile(fileId);
-            GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
-            File file = getFileResponse.file();
-            byte[] fileContent = telegramBot.getFileContent(file);
-            String pathToDirectory = "photo//"+ fileId+".jpg";
-            try(FileOutputStream fos=new FileOutputStream(pathToDirectory))
-            {
-                fos.write(fileContent, 0, fileContent.length);
-                logger.info("photo is saved");
-            }
-            catch(IOException ex){
+        if (update.message().photo() != null && update.message().caption() == null) {
+            saveReportWithoutText(update);
+        }
+        if (update.message().photo() != null && update.message().caption() != null) {
+            saveReport(update);
+        }
+    }
 
-                System.out.println(ex.getMessage());
-            }
-            report.setFilePath(pathToDirectory);
-            report.setFileSize(update.message().document().fileSize());
-            report.setMediaType("image/jpeg");
-        }
-        String fileId = update.message().document().fileId();
-        Long fileSize = update.message().document().fileSize();
+    /* This method initializes fields in the report object except fields with data about photo */
+    private void saveReportWithoutPhoto(Update update) {
+        Report report = new Report();
+        report.setDate(LocalDate.now());
+        report.setChatId(update.message().chat().id());
+        report.setText(update.message().text());
+        report.setStatus(false);
+        SendMessage message = new SendMessage(update.message().chat().id(),
+                "Отчёт принят без фотографии. Статус отчета: не соответствует требованиям");
+        SendResponse response = telegramBot.execute(message);
+        reportService.createReport(report);
+    }
+
+    /* This method initializes fields in the report object except field with text */
+    private void saveReportWithoutText(Update update) throws IOException {
+        Report report = new Report();
+        report.setDate(LocalDate.now());
+        report.setChatId(update.message().chat().id());
+        report.setStatus(false);
+        String fileId = update.message().photo()[3].fileId();
         GetFile getFileRequest = new GetFile(fileId);
         GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
         File file = getFileResponse.file();
-        byte[] fileContent = telegramBot.getFileContent(file);
-        String pathToDirectory = "photo//"+ fileId+".jpg";
-        try(FileOutputStream fos=new FileOutputStream(pathToDirectory))
-        {
-            fos.write(fileContent, 0, fileContent.length);
-            logger.info("photo is saved");
-        }
-        catch(IOException ex){
+        URL url = new URL("https://api.telegram.org/file/bot" + telegramBot.getToken() + "/" + file.filePath());
+        InputStream inputStream = url.openStream();
+        byte[] fileContent = inputStream.readAllBytes();
+        report.setData(fileContent);
+        report.setMediaType(getExtensions(file.filePath()));
+        report.setFileSize(file.fileSize());
+        inputStream.close();
+        SendMessage message = new SendMessage(update.message().chat().id(),
+                "Отчёт принят без текста. Статус отчета: не соответствует требованиям");
+        SendResponse response = telegramBot.execute(message);
+        reportService.createReport(report);
+    }
 
-            System.out.println(ex.getMessage());
-        }
-        report.setText(update.message().caption());
-        report.setFilePath(pathToDirectory);
-        report.setFileSize(fileSize);
-        report.setMediaType("image/jpeg");
-        report.setStatus(true);
+    private String getExtensions(String file) {
+        return file.substring(file.lastIndexOf(".") + 1);
+    }
+
+    /* This method initializes fields in the report object */
+    public void saveReport(Update update) throws IOException{
+        Report report = new Report();
         report.setDate(LocalDate.now());
         report.setChatId(update.message().chat().id());
+        report.setText(update.message().caption());
+        report.setStatus(true);
+        String fileId = update.message().photo()[3].fileId();
+        GetFile getFileRequest = new GetFile(fileId);
+        GetFileResponse getFileResponse = telegramBot.execute(getFileRequest);
+        File file = getFileResponse.file();
+        URL url = new URL("https://api.telegram.org/file/bot" + telegramBot.getToken() + "/" + file.filePath());
+        InputStream inputStream = url.openStream();
+        byte[] fileContent = inputStream.readAllBytes();
+        report.setData(fileContent);
+        report.setMediaType(getExtensions(file.filePath()));
+        report.setFileSize(file.fileSize());
+        inputStream.close();
         SendMessage message = new SendMessage(update.message().chat().id(),
-                "Отчёт принят");
+                "Отчёт принят. Статус отчета: соответствует требованиям");
         SendResponse response = telegramBot.execute(message);
-        reportRepository.save(report);
+        reportService.createReport(report);
     }
 
-    private Report createReportModel() {
-        return new Report();
-    }
     /* This method provides check a quality of reports */
     private Boolean checkReportQuality(Update update) {
-         if (update.message().document() == null) {
+        if (update.message().photo() == null) {
             SendMessage message = new SendMessage(update.message().chat().id(),
                     "В отчете отсутствует фотография. Дополните отчет фотографией питомца и повторите отправку");
             SendResponse response = telegramBot.execute(message);

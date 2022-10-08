@@ -13,13 +13,13 @@ public class Report {
     @Id
     @GeneratedValue
     private Long id;
+
     private Long chatId;
-    private String filePath;
     private long fileSize;
     private String mediaType;
+    private byte[] data;
     private String text;
     private boolean status;
-
     private LocalDate date;
 
     public Long getId() {
@@ -38,10 +38,6 @@ public class Report {
         this.chatId = chatId;
     }
 
-    public String getFilePath() {
-        return filePath;
-    }
-
     public long getFileSize() {
         return fileSize;
     }
@@ -50,16 +46,20 @@ public class Report {
         this.fileSize = fileSize;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
     public String getMediaType() {
         return mediaType;
     }
 
     public void setMediaType(String mediaType) {
         this.mediaType = mediaType;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
     }
 
     public String getText() {
@@ -92,13 +92,14 @@ public class Report {
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
         return fileSize == report.fileSize && status == report.status && Objects.equals(id, report.id)
-                && Objects.equals(chatId, report.chatId) && Objects.equals(filePath, report.filePath) && Objects.equals(mediaType, report.mediaType)
-                && Objects.equals(text, report.text) && Objects.equals(date,report.date);
+                && Objects.equals(chatId, report.chatId) && Arrays.equals(data, report.data) && Objects.equals(mediaType, report.mediaType)
+                && Objects.equals(text, report.text) && Objects.equals(date, report.date);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, chatId, filePath, fileSize, mediaType, text, status, date);
+        int result = Objects.hash(id, chatId, fileSize, mediaType, text, status, date);
+        result = 31 * result * Arrays.hashCode(data);
         return result;
     }
 
@@ -107,7 +108,7 @@ public class Report {
         return "Report{" +
                 "id=" + id +
                 ", chatId=" + chatId +
-                ", filePath='" + filePath + '\'' +
+                ", data='" + Arrays.toString(data) +
                 ", fileSize=" + fileSize +
                 ", mediaType='" + mediaType + '\'' +
                 ", text='" + text + '\'' +
