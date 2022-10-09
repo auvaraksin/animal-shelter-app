@@ -17,7 +17,6 @@ public class Client {
 
     private String contacts;
     private String animal_type;
-    private int successReportNumber;
     private boolean clientStatus;
     private LocalDate dateOfStart;
     private LocalDate dateOfEnd;
@@ -71,14 +70,6 @@ public class Client {
         this.animal_type = animal_type;
     }
 
-    public int getSuccessReportNumber() {
-        return successReportNumber;
-    }
-
-    public void setSuccessReportNumber(int successReportNumber) {
-        this.successReportNumber = successReportNumber;
-    }
-
     public boolean isStatus() {
         return clientStatus;
     }
@@ -116,13 +107,13 @@ public class Client {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Client client = (Client) o;
-        return successReportNumber == client.successReportNumber && clientStatus == client.clientStatus && Objects.equals(id, client.id) && Objects.equals(chatId, client.chatId) && Objects.equals(first_name, client.first_name) && Objects.equals(contacts, client.contacts)
+        return clientStatus == client.clientStatus && Objects.equals(id, client.id) && Objects.equals(chatId, client.chatId) && Objects.equals(first_name, client.first_name) && Objects.equals(contacts, client.contacts)
                 && Objects.equals(animal_type, client.animal_type) && Objects.equals(name,client.name) && Objects.equals(dateOfStart, client.dateOfStart) && Objects.equals(dateOfEnd, client.dateOfEnd);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, first_name, contacts, animal_type, name, successReportNumber, clientStatus, dateOfStart, dateOfEnd);
+        return Objects.hash(id, chatId, first_name, contacts, animal_type, name, clientStatus, dateOfStart, dateOfEnd);
     }
 
     @Override
@@ -133,11 +124,9 @@ public class Client {
                 ", first_name='" + first_name + '\'' +
                 ", contacts='" + contacts + '\'' +
                 ", animal_type='" + animal_type + '\'' +
-                ", successReportNumber=" + successReportNumber +
                 ", status=" + clientStatus +
                 ", dateOfStart=" + dateOfStart +
                 ", dateOfEnd=" + dateOfEnd +
                 '}';
     }
 }
-

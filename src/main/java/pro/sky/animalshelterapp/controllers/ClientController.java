@@ -35,7 +35,7 @@ public class ClientController {
         return ResponseEntity.ok(clientService.findByStatus(status));
     }
 
-    @PutMapping
+    @PutMapping("/update-client-status")
     public ResponseEntity updateClientStatus(@RequestParam String name,
                                              @RequestParam Boolean status,
                                              @RequestParam(required = false) String dateOfStart,
@@ -46,4 +46,18 @@ public class ClientController {
         return ResponseEntity.ok(clientService.updateClientStatus(name, status));
     }
 
+    @PutMapping("set-animal-type")
+    public ResponseEntity setAnimalType(@RequestParam String name,
+                                        @RequestParam String animalType) {
+        System.out.println(animalType.toUpperCase());
+        System.out.println(animalType.toUpperCase().equals("DOG"));
+        System.out.println(animalType.toUpperCase().equals("CAT"));
+        if (animalType.toUpperCase().equals("DOG")) {
+            return ResponseEntity.ok(clientService.setAnimalType(name, animalType.toUpperCase()));
+        }
+        if (animalType.toUpperCase().equals("CAT")) {
+            return ResponseEntity.ok(clientService.setAnimalType(name, animalType.toUpperCase()));
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
