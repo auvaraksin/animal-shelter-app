@@ -12,6 +12,8 @@ public interface ClientService {
 
     Client updateClientStatus(String name, Boolean status);
 
+    Client setAnimalType(String name, String animalType);
+
     Collection<Client> findAll();
 
     Client findByName(String name);

@@ -20,12 +20,12 @@ public class ClientServiceImpl implements ClientService {
     }
 
     public void createClient(Client client) {
-        logger.info("Method to create a new record in the DB in table 'Client' was invoked ");
+        logger.info("Method to create a new record in the DB in table 'Client' was invoked");
         clientRepository.save(client);
     }
 
     public Client updateClientStatus(String name, Boolean status, LocalDate dateOfStart, LocalDate dateOfEnd) {
-        logger.info("Method to update the record in the DB in table 'Client' was invoked ");
+        logger.info("Method to update the record in the DB in table 'Client' was invoked. Set client's status and trial period");
         Client client = clientRepository.findByName(name);
         client.setStatus(status);
         client.setDateOfStart(dateOfStart);
@@ -35,30 +35,38 @@ public class ClientServiceImpl implements ClientService {
     }
 
     public Client updateClientStatus(String name, Boolean status) {
-        logger.info("Method to update the record in the DB in table 'Client' was invoked ");
+        logger.info("Method to update the record in the DB in table 'Client' was invoked. Set client's status");
         Client client = clientRepository.findByName(name);
         client.setStatus(status);
         clientRepository.save(client);
         return client;
     }
 
+    public Client setAnimalType(String name, String animalType) {
+        logger.info("Method to update the record in the DB in table 'Client' was invoked. Set animal type");
+        Client client = clientRepository.findByName(name);
+        client.setAnimal_type(animalType);
+        clientRepository.save(client);
+        return client;
+    }
+
     public Collection<Client> findAll() {
-        logger.info("Method to show all records in the DB in table 'Client' was invoked ");
+        logger.info("Method to show all records in the DB in table 'Client' was invoked");
         return clientRepository.findAll();
     }
 
     public Client findByName(String name) {
-        logger.info("Method to find the record in the DB in table 'Client' was invoked ");
+        logger.info("Method to find the record in the DB in table 'Client' was invoked");
         return clientRepository.findByName(name);
     }
 
     public Long findChatIdByName(String name) {
-        logger.info("Method to find the data in the DB in table 'Client' was invoked ");
+        logger.info("Method to find the data in the DB in table 'Client' was invoked");
         return clientRepository.findByName(name).getChatId();
     }
 
     public Collection<Client> findByStatus(Boolean status) {
-        logger.info("Method to find records in the DB in table 'Client' was invoked ");
+        logger.info("Method to find records in the DB in table 'Client' was invoked");
         return clientRepository.findByClientStatus(status);
     }
 }

@@ -12,6 +12,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import pro.sky.animalshelterapp.exeptions.WrongDataSavingExeption;
 import pro.sky.animalshelterapp.interfaces.ClientService;
@@ -353,17 +354,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         InputStream inputStream = url.openStream();
         byte[] fileContent = inputStream.readAllBytes();
         report.setData(fileContent);
-        report.setMediaType(getExtensions(file.filePath()));
+        report.setMediaType("image/" + getExtensions(file.filePath()));
         report.setFileSize(file.fileSize());
         inputStream.close();
         SendMessage message = new SendMessage(update.message().chat().id(),
                 "Отчёт принят без текста. Статус отчета: не соответствует требованиям");
         SendResponse response = telegramBot.execute(message);
         reportService.createReport(report);
-    }
-
-    private String getExtensions(String file) {
-        return file.substring(file.lastIndexOf(".") + 1);
     }
 
     /* This method initializes fields in the report object */
@@ -381,13 +378,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         InputStream inputStream = url.openStream();
         byte[] fileContent = inputStream.readAllBytes();
         report.setData(fileContent);
-        report.setMediaType(getExtensions(file.filePath()));
+        report.setMediaType("image/" + getExtensions(file.filePath()));
         report.setFileSize(file.fileSize());
         inputStream.close();
         SendMessage message = new SendMessage(update.message().chat().id(),
                 "Отчёт принят. Статус отчета: соответствует требованиям");
         SendResponse response = telegramBot.execute(message);
         reportService.createReport(report);
+    }
+
+    private String getExtensions(String file) {
+        return file.substring(file.lastIndexOf(".") + 1);
     }
 
     /* This method provides check a quality of reports */
