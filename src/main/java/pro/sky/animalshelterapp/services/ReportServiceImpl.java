@@ -36,6 +36,7 @@ public class ReportServiceImpl implements ReportService {
         return reportRepository.findByChatId(clientService.findByName(name).getChatId());
     }
 
+
     public Report updateReportStatus(Long reportId, boolean status) {
         logger.info("Method to update the record in the DB in table 'Report' was invoked. Set report's status");
         Report report = reportRepository.findById(reportId).orElse(new Report());

@@ -12,7 +12,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pro.sky.animalshelterapp.exeptions.WrongDataSavingExeption;
 import pro.sky.animalshelterapp.interfaces.ClientService;
@@ -27,7 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+
 
 @Service
 @Transactional
@@ -53,9 +55,61 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public void init() {
         telegramBot.setUpdatesListener(this);
     }
-
+   //Method sends messages about reports
+    @Scheduled(cron = "@daily")
+    public void run() {
+        logger.info("run method is working");
+         List<Client> clients = clientService.findAll().stream().toList();
+         for (Client i:clients) {
+            if (i.getDateOfStart()!=null&&i.getDateOfEnd()!=null) {
+                //Если срок начался, а ни одного отчёта ещё нет
+                if ((i.getDateOfStart().isBefore(LocalDate.now())) && reportService.findAllByClientName(i.getName()) == null) {
+                    SendMessage message = new SendMessage(i.getChatId(), "Вы должны присылать отчёты о питомце!");
+                    SendResponse response = telegramBot.execute(message);
+                    if (!response.isOk()) {
+                        response.errorCode();
+                    }
+                }
+                //Если не прислан ежедневный отчёт
+                if ((i.getDateOfStart().isBefore(LocalDate.now())
+                        && i.getDateOfEnd().isAfter(LocalDate.now())
+                        && getLastReport(i.getName()).getDate().isBefore(LocalDate.now()))) {
+                    SendMessage message = new SendMessage(i.getChatId(), "Вы забыли прислать отчёт о питомце!");
+                    SendResponse response = telegramBot.execute(message);
+                    if (!response.isOk()) {
+                        response.errorCode();
+                    }
+                }
+                //Если всё в порядке и статус клиента true
+                if (i.getDateOfEnd().equals(LocalDate.now()) && i.isStatus()) {
+                    SendMessage message = new SendMessage(i.getChatId(), "Поздравляем! Вы прошли испытательный срок и становитесь" +
+                            " полноправным хозяином питомца!");
+                    SendResponse response = telegramBot.execute(message);
+                    if (!response.isOk()) {
+                        response.errorCode();
+                    }
+                }
+                //Если срок уже прошёл, а статуса true нет
+                if (i.getDateOfEnd().isBefore(LocalDate.now()) && !i.isStatus()) {
+                    SendMessage message = new SendMessage(i.getChatId(), "Вы не прошли испытательный срок! Обратитесь к волонтёру!");
+                    SendResponse response = telegramBot.execute(message);
+                    if (!response.isOk()) {
+                        response.errorCode();
+                    }
+                }
+            }
+         }
+        logger.info("run method has worked");
+    }
+    //return the latest report and let to know the last date
+     public Report getLastReport (String name) {
+        List <Report> listOfReports = reportService.findAllByClientName(name).stream()
+                .sorted(Comparator.comparingLong(Report::getId)).toList();
+        return listOfReports.get(listOfReports.size()-1);
+     }
     @Override
     public int process(List<Update> updates) {
+        run();
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
 

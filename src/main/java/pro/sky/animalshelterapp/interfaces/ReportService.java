@@ -11,5 +11,6 @@ public interface ReportService {
 
     Collection<Report> findAllByClientName(String name);
 
+
     Report updateReportStatus(Long id, boolean status);
 }
