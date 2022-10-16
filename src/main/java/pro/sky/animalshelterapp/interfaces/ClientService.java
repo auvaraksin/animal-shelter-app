@@ -12,7 +12,7 @@ public interface ClientService {
 
     Client updateClientStatus(String name, Boolean status);
 
-    Client setAnimalType(String name, String animalType);
+    Client setAnimalType(String name, String animalType) throws RuntimeException;
 
     Collection<Client> findAll();
 
