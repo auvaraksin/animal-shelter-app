@@ -132,6 +132,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         callConsultationMenuForAdoptivePerson(update, state);
                         logger.info("State: {}", state);
                         break;
+                    case "consultation_menu_for_cat":
+                        callConsultationMenuForAdoptivePersonForCats(update, state);
+                        logger.info("State: {}", state);
+                        break;
                     case "report_menu":
                         callReportMenu(update, state);
                         logger.info("State: {}", state);
@@ -187,6 +191,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         callConsultationMenuForAdoptivePerson(update);
                         logger.info("State: {}", state);
                         break;
+                    case "/main_menu_02_01":
+                        state = "consultation_menu_for_cat";
+                        callConsultationMenuForAdoptivePersonForCats(update);
+                        logger.info("State: {}", state);
+                        break;
                     case "/main_menu_03":
                         state = "report_menu";
                         callReportMenu(update);
@@ -239,6 +248,42 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         break;
                     case "/menu_29":
                         showListOfRejectionCauses(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_121":
+                        showMeetingRulesWithPetCat(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_122":
+                        showListOfRequiredDocumentsBeforeAdoptPetCat(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_123":
+                        showRecommendationsAboutPetTransportationHandlingRulesCat(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_124":
+                        showRecommendationsAboutHouseholdConditionsForKitty(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_125":
+                        showRecommendationsAboutHouseholdConditionsForCat(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_126":
+                        showRecommendationsAboutHouseholdConditionsForDisabledCat(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_127":
+                        showRecommendationsOfDogBreedingSpecialistCat(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_128":
+                        showListOfDogBreedingSpecialistsCat(update);
+                        logger.info("State: {}", state);
+                        break;
+                    case "/menu_129":
+                        showListOfRejectionCausesCat(update);
                         logger.info("State: {}", state);
                         break;
                     case "/menu_31":
@@ -348,7 +393,67 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 messageSourceService.findById("rejection"));
         SendResponse response = telegramBot.execute(message);
     }
+    private void showMeetingRulesWithPetCat(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("catMeetingRules"));
+        SendResponse response = telegramBot.execute(message);
+    }
 
+    /* This method generates SQL-request to the database to read record in the Shelter table containing list of required documents before adopt a pet */
+    private void showListOfRequiredDocumentsBeforeAdoptPetCat(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("documentsForCat"));
+        SendResponse response = telegramBot.execute(message);
+    }
+
+    /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about pet transportation handling rules */
+    private void showRecommendationsAboutPetTransportationHandlingRulesCat(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("TransportRulesCats"));
+        SendResponse response = telegramBot.execute(message);
+    }
+
+    /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for puppy */
+    private void showRecommendationsAboutHouseholdConditionsForKitty(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("kittyHome"));
+        SendResponse response = telegramBot.execute(message);
+    }
+
+    /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for dog */
+    private void showRecommendationsAboutHouseholdConditionsForCat(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("CatHome"));
+        SendResponse response = telegramBot.execute(message);
+    }
+
+    /* This method generates SQL-request to the database to read record in the Shelter table containing recommendations about household conditions for disabled dog */
+    private void showRecommendationsAboutHouseholdConditionsForDisabledCat(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("invalidCatHome"));
+        SendResponse response = telegramBot.execute(message);
+    }
+
+    /* This method generates SQL-request to the database to read record in the Shelter table containing dog breeding specialist's pieces of advice */
+    private void showRecommendationsOfDogBreedingSpecialistCat(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("veterinar"));
+        SendResponse response = telegramBot.execute(message);
+    }
+
+    /* This method generates SQL-request to the database to read record in the Shelter table containing list of recommended dog breeding specialists */
+    private void showListOfDogBreedingSpecialistsCat(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("veterinarList"));
+        SendResponse response = telegramBot.execute(message);
+    }
+
+    /* This method generates SQL-request to the database to read record in the Shelter table containing list of causes of rejection decision */
+    private void showListOfRejectionCausesCat(Update update) {
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
+                messageSourceService.findById("catRejection"));
+        SendResponse response = telegramBot.execute(message);
+    }
     /* This method shows up requirements to the daily report form */
     private void showReportPattern(Update update) {
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(),
@@ -605,7 +710,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         SendResponse response = telegramBot.execute(message);
     }
 
-    /* This method calls consultation menu list for a possible adoptive person by text message */
+    /* This method calls consultation menu list for a possible adoptive person (dog) by text message */
     private void callConsultationMenuForAdoptivePerson(Update update, String state) {
         if (state.equals("consultation_menu")) {
             InlineKeyboardMarkup inLineKeyboardConsultationMenuForAdoptivePerson = generateConsultationMenuForAdoptivePerson();
@@ -614,12 +719,28 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             SendResponse response = telegramBot.execute(message);
         }
     }
+    /* This method calls consultation menu list for a possible adoptive person (cat) by text message */
+    private void callConsultationMenuForAdoptivePersonForCats(Update update, String state) {
+        if (state.equals("consultation_menu_for_cat")) {
+            InlineKeyboardMarkup inLineKeyboardConsultationMenuForAdoptivePersonForCat = generateConsultationMenuForAdoptivePersonForCat();
+            SendMessage message = new SendMessage(update.message().chat().id(), "Выберите интересующий вас пункт меню")
+                    .replyMarkup(inLineKeyboardConsultationMenuForAdoptivePersonForCat);
+            SendResponse response = telegramBot.execute(message);
+        }
+    }
 
-    /* This method calls consultation menu list for a possible adoptive person via CallbackQuery data */
+    /* This method calls consultation menu list for a possible adoptive person (dog) via CallbackQuery data */
     private void callConsultationMenuForAdoptivePerson(Update update) {
         InlineKeyboardMarkup inLineKeyboardConsultationMenuForAdoptivePerson = generateConsultationMenuForAdoptivePerson();
         SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(), "Выберите интересующий вас пункт меню")
                 .replyMarkup(inLineKeyboardConsultationMenuForAdoptivePerson);
+        SendResponse response = telegramBot.execute(message);
+    }
+    /* This method calls consultation menu list for a possible adoptive person (cat)  via CallbackQuery data*/
+    private void callConsultationMenuForAdoptivePersonForCats(Update update) {
+        InlineKeyboardMarkup inLineKeyboardConsultationMenuForAdoptivePersonForCat = generateConsultationMenuForAdoptivePersonForCat();
+        SendMessage message = new SendMessage(update.callbackQuery().message().chat().id(), "Выберите интересующий вас пункт меню")
+                .replyMarkup(inLineKeyboardConsultationMenuForAdoptivePersonForCat);
         SendResponse response = telegramBot.execute(message);
     }
 
@@ -648,6 +769,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 callbackData("/main_menu_01"));
         inLineKeyboardMainMenu.addRow(new InlineKeyboardButton("Как взять собаку из приюта").
                 callbackData("/main_menu_02"));
+        inLineKeyboardMainMenu.addRow(new InlineKeyboardButton("Как взять кошку из приюта").
+                callbackData("/main_menu_02_01"));
         inLineKeyboardMainMenu.addRow(new InlineKeyboardButton("Прислать отчет о питомце").
                 callbackData("/main_menu_03"));
         inLineKeyboardMainMenu.addRow(new InlineKeyboardButton("Обратиться к волонтеру").
@@ -673,7 +796,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return inLineKeyboardGeneralConsultationMenu;
     }
 
-    /* This method generates consultation menu list for an adoptive person */
+    /* This method generates consultation menu list for an adoptive person (dog)*/
     private InlineKeyboardMarkup generateConsultationMenuForAdoptivePerson() {
         InlineKeyboardMarkup inLineKeyboardConsultationMenuForAdoptivePerson = new InlineKeyboardMarkup();
         inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Правила знакомства с собакой").
@@ -694,6 +817,35 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 callbackData("/menu_28"));
         inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Причины отказа в заборе собаки из приюта").
                 callbackData("/menu_29"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Зарегистрироваться").
+                callbackData("/signup"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Вернуться в главное меню").
+                callbackData("/main_menu"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Обратиться к волонтеру").
+                callbackData("/call_volunteer"));
+        return inLineKeyboardConsultationMenuForAdoptivePerson;
+    }
+    /* This method generates consultation menu list for an adoptive person (cat)*/
+    private InlineKeyboardMarkup generateConsultationMenuForAdoptivePersonForCat() {
+        InlineKeyboardMarkup inLineKeyboardConsultationMenuForAdoptivePerson = new InlineKeyboardMarkup();
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Правила знакомства с кошкой").
+                callbackData("/menu_121"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Список документов, чтобы взять кошку из приюта").
+                callbackData("/menu_122"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Рекомендации по транспортировке животного").
+                callbackData("/menu_123"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Рекомендации по обустройтсву дома для котёнка").
+                callbackData("/menu_124"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Рекомендации по обустройтсву дома для взрослой кошки").
+                callbackData("/menu_125"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Рекомендации по обустройтсву дома для кошки с ограниченными возможностями").
+                callbackData("/menu_126"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Советы ветеринара по первичному общению с кошкой").
+                callbackData("/menu_127"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Список рекомендуемых ветеринаров для консультации").
+                callbackData("/menu_128"));
+        inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Причины отказа в заборе кошки из приюта").
+                callbackData("/menu_129"));
         inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Зарегистрироваться").
                 callbackData("/signup"));
         inLineKeyboardConsultationMenuForAdoptivePerson.addRow(new InlineKeyboardButton("Вернуться в главное меню").

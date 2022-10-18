@@ -45,9 +45,11 @@ public class ClientServiceImpl implements ClientService {
     public Client setAnimalType(String name, String animalType) {
         logger.info("Method to update the record in the DB in table 'Client' was invoked. Set animal type");
         Client client = clientRepository.findByName(name);
+        if (animalType.equals("cat")||animalType.equals("dog")||animalType.equals("кошка")||animalType.equals("собака")){
         client.setAnimal_type(animalType);
         clientRepository.save(client);
-        return client;
+        return client;}
+        else throw new RuntimeException();
     }
 
     public Collection<Client> findAll() {
