@@ -52,7 +52,6 @@ class AnimalShelterAppApplicationTests {
         when(clientRepository.findAll()).thenReturn(clients);
         when(clientRepository.findByName("John")).thenReturn(client1);
         when(clientRepository.findByClientStatus(true)).thenReturn(clients);
-//        when(clientRepository.)
     }
 
     @Test
