@@ -49,9 +49,6 @@ public class ClientController {
     @PutMapping("set-animal-type")
     public ResponseEntity setAnimalType(@RequestParam String name,
                                         @RequestParam String animalType) {
-        System.out.println(animalType.toUpperCase());
-        System.out.println(animalType.toUpperCase().equals("DOG"));
-        System.out.println(animalType.toUpperCase().equals("CAT"));
         if (animalType.toUpperCase().equals("DOG")) {
             return ResponseEntity.ok(clientService.setAnimalType(name, animalType.toUpperCase()));
         }
